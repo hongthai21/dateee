@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>When should our adventure begin? 🌸</title>
+    <!-- Phông chữ Google Fonts & Hiệu ứng Pháo hoa -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:wght@400;600;700;800&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nunito', 'Segoe UI', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #fdf0f3 0%, #fae1e7 50%, #f7d2dc 100%);
+            padding: 20px 12px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Tim bay nền */
+        .floating-heart {
+            position: absolute;
+            color: rgba(255, 107, 129, 0.3);
+            font-size: 18px;
+            pointer-events: none;
+            user-select: none;
+            animation: floatUp 6s linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(105vh) scale(0.8) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.4) rotate(360deg); opacity: 0; }
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        /* ================= STEPPER XE HƠI 🚗 ================= */
+        .stepper-container {
+            position: relative;
+            padding: 22px 10px 8px 10px;
+        }
+
+        .stepper-track-bg {
+            position: absolute;
+            top: 35px;
+            left: 28px;
+            right: 28px;
+            height: 4px;
+            background: #f1ccd4;
+            border-radius: 4px;
+            z-index: 1;
+        }
+
+        .stepper-track-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff4071, #ff758c);
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+
+        .stepper-nodes {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            z-index: 2;
+        }
+
+        .step-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 75px;
+        }
+
+        .node-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #f1ccd4;
+            color: #888;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .step-node.completed .node-circle {
+            background: #ff4071;
+            border-color: #ff4071;
+            color: white;
+        }
+
+        .step-node.active .node-circle {
+            background: #ff4071;
+            border-color: #ff4071;
+            color: white;
+            box-shadow: 0 0 0 4px rgba(255, 64, 113, 0.25);
+        }
+
+        .node-label {
+            margin-top: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #888;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .step-node.active .node-label,
+        .step-node.completed .node-label {
+            color: #c9184a;
+        }
+
+        .stepper-car {
+            position: absolute;
+            top: 5px;
+            font-size: 20px;
+            transform: translateX(-50%);
+            transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 5;
+        }
+
+        /* ================= CARD NỘI DUNG ================= */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            padding: 26px 22px;
+            border-radius: 28px;
+            box-shadow: 0 15px 35px rgba(255, 105, 135, 0.18);
+            border: 1.5px solid rgba(255, 255, 255, 0.9);
+            text-align: center;
+        }
+
+        .step-content {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1.cursive-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 30px;
+            color: #2b2b2b;
+            margin-bottom: 15px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .gif-box {
+            width: 170px;
+            height: 160px;
+            margin: 0 auto 15px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+        }
+
+        .gif-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+            border-radius: 12px;
+            filter: drop-shadow(0 6px 14px rgba(255, 105, 135, 0.25));
+        }
+
+        p.subtitle {
+            color: #636e72;
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .btn-adventure {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 13px 26px;
+            background: linear-gradient(45deg, #e84370, #ff5e83);
+            color: white;
+            font-size: 16px;
+            font-weight: 800;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(232, 67, 112, 0.35);
+            transition: all 0.2s ease;
+            margin-top: 15px;
+        }
+
+        .btn-adventure:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 24px rgba(232, 67, 112, 0.45);
+        }
+
+        .btn-group-step1 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            min-height: 60px;
+            position: relative;
+        }
+
+        .btn-step1 {
+            padding: 12px 26px;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #yesBtn {
+            background: #ff4071;
+            color: white;
+            box-shadow: 0 6px 16px rgba(255, 64, 113, 0.35);
+        }
+
+        #noBtn {
+            background: #f1f2f6;
+            color: #57606f;
+        }
+
+        /* Form Bước 2 */
+        .form-row {
+            text-align: left;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #4b4b4b;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .fake-input-box {
+            width: 100%;
+            padding: 11px 16px;
+            background: #fff;
+            border: 1.5px solid #ffd1dc;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            color: #333;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .fake-input-box:hover {
+            border-color: #ff4071;
+        }
+
+        .native-date-input {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            color: #333;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        /* Popup 24h 2 cột */
+        .time-picker-popover {
+            display: none;
+            position: absolute;
+            top: 72px;
+            left: 0;
+            width: 185px;
+            height: 200px;
+            background: #fff;
+            border: 1px solid #ffccd5;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            z-index: 100;
+            padding: 5px;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
+
+        .time-picker-popover.open {
+            display: grid;
+        }
+
+        .time-scroll-col {
+            overflow-y: auto;
+            height: 100%;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .time-scroll-col::-webkit-scrollbar { width: 4px; }
+        .time-scroll-col::-webkit-scrollbar-thumb { background: #ffd1dc; border-radius: 4px; }
+
+        .time-option-item {
+            padding: 7px 0;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .time-option-item:hover {
+            background: #ffe3ea;
+            color: #d6336c;
+        }
+
+        .time-option-item.selected {
+            background: #0984e3;
+            color: #fff;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        .moment-preview-text {
+            color: #c9184a;
+            font-size: 13px;
+            font-weight: 700;
+            margin: 12px 0 4px 0;
+            line-height: 1.5;
+            min-height: 20px;
+        }
+
+        /* Bước 3: Món ăn */
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .food-item {
+            background: #fff5f7;
+            border: 2px solid transparent;
+            border-radius: 18px;
+            padding: 12px 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+        }
+
+        .food-item:hover {
+            transform: translateY(-2px);
+            background: #ffeef2;
+        }
+
+        .food-item.selected {
+            border-color: #ff4071;
+            background: #ffe3ea;
+            box-shadow: 0 6px 12px rgba(255, 64, 113, 0.2);
+            transform: scale(1.02);
+        }
+
+        .food-icon { font-size: 34px; margin-bottom: 4px; }
+        .food-name { font-size: 14px; font-weight: 700; color: #2d3436; }
+
+        /* Bước 4: Tóm tắt */
+        .summary-box {
+            background: #fff0f3;
+            border-radius: 18px;
+            padding: 16px;
+            text-align: left;
+            margin-bottom: 16px;
+            border: 1px dashed #ff85a2;
+        }
+
+        .summary-row { margin-bottom: 8px; font-size: 14px; color: #4b4b4b; }
+        .summary-row strong { color: #d6336c; }
+        .summary-row:last-child { margin-bottom: 0; }
+
+        .loading-spinner {
+            display: none;
+            margin: 15px auto 0 auto;
+            width: 28px;
+            height: 28px;
+            border: 3px solid #ffccd5;
+            border-top: 3px solid #ff4071;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+
+        <!-- ================= STEPPER XE HƠI 🚗 ================= -->
+        <div class="stepper-container">
+            <div class="stepper-track-bg">
+                <div class="stepper-track-fill" id="trackFill"></div>
+            </div>
+            
+            <div class="stepper-car" id="stepperCar">🚗</div>
+
+            <div class="stepper-nodes">
+                <div class="step-node active" id="node1">
+                    <div class="node-circle" id="circle1">1</div>
+                    <div class="node-label">Ask Out ❤️</div>
+                </div>
+                <div class="step-node" id="node2">
+                    <div class="node-circle" id="circle2">2</div>
+                    <div class="node-label">Pick a Time 📅</div>
+                </div>
+                <div class="step-node" id="node3">
+                    <div class="node-circle" id="circle3">3</div>
+                    <div class="node-label">Food Mission 😋</div>
+                </div>
+                <div class="step-node" id="node4">
+                    <div class="node-circle" id="circle4">4</div>
+                    <div class="node-label">Final Confirm 💌</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= CARD NỘI DUNG ================= -->
+        <div class="card">
+            
+            <!-- BƯỚC 1: LỜI MỜI DATE -->
+            <div id="step1" class="step-content active">
+                <div class="gif-box">
+                    <!-- GIF Mèo năn nỉ mắt long lanh -->
+                    <img src="https://media.giphy.com/media/c76IJLufpNwSULPk77/giphy.gif" alt="Cat begging">
+                </div>
+                <h1 class="cursive-title">Will you go on a date with me? 🌸</h1>
+                
+                <div class="btn-group-step1">
+                    <button id="yesBtn" class="btn-step1" onclick="handleYesStep1()">Dạ có, em đồng ý ❤️</button>
+                    <button id="noBtn" class="btn-step1" onclick="handleNoStep1()" onmouseover="handleNoHover()">Không nha 😜</button>
+                </div>
+            </div>
+
+            <!-- BƯỚC 2: CHỌN NGÀY & GIỜ -->
+            <div id="step2" class="step-content">
+                <div class="gif-box">
+                    <!-- GIF Mèo chuẩn bị đồ đi date cute -->
+                    <img src="https://media.giphy.com/media/v6aOjy0Qo1fIA/giphy.gif" alt="Date sticker">
+                </div>
+                <h1 class="cursive-title" style="font-size: 27px;">When should our adventure begin? 🌸</h1>
+
+                <div class="form-row">
+                    <label class="form-label">Pick a date 📅</label>
+                    <div class="fake-input-box">
+                        <input type="date" id="dateInput" class="native-date-input" onchange="updateMomentPreview()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">Choose a time ⏰</label>
+                    <div class="fake-input-box" onclick="toggleTimeDropdown(event)">
+                        <span id="timeDisplay">20:13</span>
+                        <span>🕒</span>
+                    </div>
+
+                    <div class="time-picker-popover" id="timePickerPopover" onclick="event.stopPropagation()">
+                        <div class="time-scroll-col" id="hourCol"></div>
+                        <div class="time-scroll-col" id="minCol"></div>
+                    </div>
+                </div>
+
+                <div class="moment-preview-text" id="momentPreview">
+                    Perfect! I'll save that special moment 💕
+                </div>
+
+                <button class="btn-adventure" onclick="goToStep3()">Next Adventure ➔</button>
+            </div>
+
+            <!-- BƯỚC 3: FOOD MISSION -->
+            <div id="step3" class="step-content">
+                <div class="gif-box">
+                    <!-- GIF Mèo ăn ngon miệng -->
+                    <img src="https://media.giphy.com/media/8vQSQ3cNXuDGo/giphy.gif" alt="Cat eating">
+                </div>
+                <h1 class="cursive-title" style="font-size: 28px;">Food Mission 🍽️</h1>
+                <p class="subtitle">Hôm đó công chúa muốn ăn món gì nào? 😋</p>
+
+                <div class="food-grid">
+                    <div class="food-item" onclick="toggleFood(this, 'Jollibee 🍗')">
+                        <span class="food-icon">🍗</span>
+                        <span class="food-name">Jollibee</span>
+                    </div>
+                    <div class="food-item" onclick="toggleFood(this, 'Ramen Nhật 🍜')">
+                        <span class="food-icon">🍜</span>
+                        <span class="food-name">Ramen</span>
+                    </div>
+                    <div class="food-item" onclick="toggleFood(this, 'Pizza 🍕')">
+                        <span class="food-icon">🍕</span>
+                        <span class="food-name">Pizza</span>
+                    </div>
+                    <div class="food-item" onclick="toggleFood(this, 'BBQ / Nướng 🥩')">
+                        <span class="food-icon">🥩</span>
+                        <span class="food-name">BBQ Nướng</span>
+                    </div>
+                    <div class="food-item" style="grid-column: span 2;" onclick="toggleFood(this, 'Đồ Thái Chua Cay 🍲')">
+                        <span class="food-icon">🍲</span>
+                        <span class="food-name">Đồ Thái chua cay</span>
+                    </div>
+                </div>
+
+                <button class="btn-adventure" onclick="goToStep4()">Next: Confirm Plan ➔</button>
+            </div>
+
+            <!-- BƯỚC 4: FINAL CONFIRM -->
+            <div id="step4" class="step-content">
+                <div class="gif-box">
+                    <!-- GIF Mèo hôn màn hình -->
+                    <img src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" alt="Cat Kissing Screen">
+                </div>
+                <h1 class="cursive-title" style="font-size: 28px;">Final Confirm 💌</h1>
+                <p class="subtitle">Em kiểm tra lại thông tin buổi hẹn nhé!</p>
+
+                <div class="summary-box">
+                    <div class="summary-row"><strong>📅 Ngày đi:</strong> <span id="sumDate">Chưa chọn</span></div>
+                    <div class="summary-row"><strong>⏰ Giờ hẹn:</strong> <span id="sumTime">20:13</span></div>
+                    <div class="summary-row"><strong>🍽️ Món ăn:</strong> <span id="sumFood">Chưa chọn</span></div>
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">💬 Lời nhắn thêm cho anh (nếu có):</label>
+                    <div class="fake-input-box">
+                        <input type="text" id="customNote" style="width: 100%; border:none; outline:none; font-size: 14px;" placeholder="Ví dụ: Đón em đúng giờ nha anh...">
+                    </div>
+                </div>
+
+                <button id="submitBtn" class="btn-adventure" onclick="sendToGmail()">Xác nhận & Gửi cho anh ❤️</button>
+                <div class="loading-spinner" id="loadingSpinner"></div>
+            </div>
+
+            <!-- BƯỚC 5: THÀNH CÔNG -->
+            <div id="step5" class="step-content">
+                <div class="gif-box">
+                    <!-- GIF 2 Mèo ôm nhau hạnh phúc -->
+                    <img src="https://media.giphy.com/media/IzXiddo2twMmdmU8Lv/giphy.gif" alt="Happy Hugs Love">
+                </div>
+                <h1 class="cursive-title" style="font-size: 30px; color: #d6336c;">Anh nhận được rồi nha! 🥰</h1>
+                <p class="subtitle" style="font-size: 15px; color: #c9184a; line-height: 1.6; margin-top: 10px;">
+                    Cảm ơn em đã đồng ý đi chơi cùng anh ❤️<br>
+                    Hôm đó chuẩn bị thật xinh đẹp, đúng giờ anh qua đón công chúa nhé! 🛵💨
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ================= CẤU HÌNH NHẬN EMAIL =================
+        const FORMSPREE_URL = "https://formspree.io/f/xljdjwjl";
+
+        let currentHour = "20";
+        let currentMin = "13";
+        let selectedFoods = [];
+        let noClickCount = 0;
+        const noTexts = [
+            "Không nha 😜", 
+            "Ơ kìa suy nghĩ lại đi!", 
+            "Thật sự không đi á? 🥺", 
+            "Anh năn nỉ đấy ❤️", 
+            "Đừng bấm đây nữa mà 😭", 
+            "Nút này sắp biến mất rồi!"
+        ];
+
+        const today = new Date();
+        document.getElementById('dateInput').value = today.toISOString().split('T')[0];
+        document.getElementById('dateInput').min = today.toISOString().split('T')[0];
+
+        // Khởi tạo bảng cuộn giờ 24h & phút
+        function initTimePicker() {
+            const hourCol = document.getElementById('hourCol');
+            const minCol = document.getElementById('minCol');
+
+            for (let i = 0; i < 24; i++) {
+                const val = i < 10 ? '0' + i : '' + i;
+                const div = document.createElement('div');
+                div.className = `time-option-item ${val === currentHour ? 'selected' : ''}`;
+                div.innerText = val;
+                div.onclick = () => selectHour(val, div);
+                hourCol.appendChild(div);
+            }
+
+            for (let i = 0; i < 60; i++) {
+                const val = i < 10 ? '0' + i : '' + i;
+                const div = document.createElement('div');
+                div.className = `time-option-item ${val === currentMin ? 'selected' : ''}`;
+                div.innerText = val;
+                div.onclick = () => selectMin(val, div);
+                minCol.appendChild(div);
+            }
+        }
+
+        function toggleTimeDropdown(e) {
+            e.stopPropagation();
+            const popover = document.getElementById('timePickerPopover');
+            popover.classList.toggle('open');
+        }
+
+        document.addEventListener('click', () => {
+            document.getElementById('timePickerPopover').classList.remove('open');
+        });
+
+        function selectHour(h, el) {
+            currentHour = h;
+            document.querySelectorAll('#hourCol .time-option-item').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
+            updateTimeDisplay();
+        }
+
+        function selectMin(m, el) {
+            currentMin = m;
+            document.querySelectorAll('#minCol .time-option-item').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
+            updateTimeDisplay();
+        }
+
+        function updateTimeDisplay() {
+            document.getElementById('timeDisplay').innerText = `${currentHour}:${currentMin}`;
+            updateMomentPreview();
+        }
+
+        function updateMomentPreview() {
+            const dateVal = document.getElementById('dateInput').value;
+            if (dateVal) {
+                const dateObj = new Date(dateVal);
+                const days = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+                const dayName = days[dateObj.getDay()];
+                document.getElementById('momentPreview').innerHTML = 
+                    `Perfect! I'll save that special moment 💕<br><span style="color:#555; font-size:12px;">${dayName}, ngày ${dateObj.getDate()}/${dateObj.getMonth()+1} lúc ${currentHour}:${currentMin}</span>`;
+            }
+        }
+
+        // Stepper Xe hơi 🚗
+        function updateStepper(step) {
+            const carPositions = ["10%", "37%", "63%", "90%"];
+            const trackWidths = ["0%", "33.3%", "66.6%", "100%"];
+
+            document.getElementById('stepperCar').style.left = carPositions[step - 1];
+            document.getElementById('trackFill').style.width = trackWidths[step - 1];
+
+            for (let i = 1; i <= 4; i++) {
+                const node = document.getElementById(`node${i}`);
+                const circle = document.getElementById(`circle${i}`);
+
+                if (i < step) {
+                    node.className = 'step-node completed';
+                    circle.innerText = '✔';
+                } else if (i === step) {
+                    node.className = 'step-node active';
+                    circle.innerText = i;
+                } else {
+                    node.className = 'step-node';
+                    circle.innerText = i;
+                }
+            }
+        }
+
+        // Tim bay nền
+        function createFloatingHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('floating-heart');
+            heart.innerHTML = ['❤️', '💖', '💕', '🌸', '✨'][Math.floor(Math.random() * 5)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 3 + 4) + 's';
+            heart.style.fontSize = (Math.random() * 15 + 15) + 'px';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 7000);
+        }
+        setInterval(createFloatingHeart, 400);
+
+        function fireConfetti() {
+            confetti({
+                particleCount: 50,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#ff4071', '#ffb6c1', '#ff69b4', '#ffd700']
+            });
+        }
+
+        function handleNoStep1() {
+            noClickCount++;
+            const noBtn = document.getElementById('noBtn');
+            const yesBtn = document.getElementById('yesBtn');
+
+            if (noClickCount >= 5) {
+                noBtn.style.display = 'none';
+                yesBtn.style.transform = 'scale(1.15)';
+                yesBtn.style.width = '100%';
+                yesBtn.innerText = 'Dạ có, em chỉ chọn Có thôiii ❤️';
+            } else {
+                noBtn.innerText = noTexts[noClickCount];
+                const scale = 1 + (noClickCount * 0.12);
+                yesBtn.style.transform = `scale(${scale})`;
+            }
+        }
+
+        function handleNoHover() {
+            if (noClickCount < 5) {
+                const noBtn = document.getElementById('noBtn');
+                const x = (Math.random() - 0.5) * 40;
+                const y = (Math.random() - 0.5) * 40;
+                noBtn.style.transform = `translate(${x}px, ${y}px)`;
+            }
+        }
+
+        function handleYesStep1() {
+            fireConfetti();
+            switchStep('step1', 'step2');
+            updateStepper(2);
+        }
+
+        function goToStep3() {
+            fireConfetti();
+            switchStep('step2', 'step3');
+            updateStepper(3);
+        }
+
+        function toggleFood(element, foodName) {
+            if (element.classList.contains('selected')) {
+                element.classList.remove('selected');
+                selectedFoods = selectedFoods.filter(f => f !== foodName);
+            } else {
+                element.classList.add('selected');
+                selectedFoods.push(foodName);
+            }
+        }
+
+        function goToStep4() {
+            if (selectedFoods.length === 0) {
+                alert("Em chọn ít nhất 1 món ăn yêu thích nha! 😋");
+                return;
+            }
+
+            document.getElementById('sumDate').innerText = document.getElementById('dateInput').value;
+            document.getElementById('sumTime').innerText = `${currentHour}:${currentMin}`;
+            document.getElementById('sumFood').innerText = selectedFoods.join(', ');
+
+            fireConfetti();
+            switchStep('step3', 'step4');
+            updateStepper(4);
+        }
+
+        // Gửi email qua Formspree bằng FormData (an toàn, không lỗi CORS trên file local)
+        async function sendToGmail() {
+            const submitBtn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('loadingSpinner');
+
+            const formData = new FormData();
+            formData.append("Thong_bao", "Crush đã đồng ý đi date cùng bạn! ❤️");
+            formData.append("Ngay_hen", document.getElementById('dateInput').value);
+            formData.append("Gio_hen", `${currentHour}:${currentMin}`);
+            formData.append("Mon_an", selectedFoods.join(', '));
+            formData.append("Loi_nhan", document.getElementById('customNote').value || "Không có lời nhắn");
+
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.7';
+            spinner.style.display = 'block';
+
+            try {
+                const response = await fetch(FORMSPREE_URL, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    spinner.style.display = 'none';
+                    fireConfetti();
+                    
+                    const end = Date.now() + 3500;
+                    const interval = setInterval(function() {
+                        if (Date.now() > end) return clearInterval(interval);
+                        confetti({ particleCount: 35, spread: 80, origin: { y: 0.6 } });
+                    }, 220);
+
+                    switchStep('step4', 'step5');
+                } else {
+                    const data = await response.json();
+                    alert("⚠️ Formspree báo: " + (data.error || "Bạn hãy vào Gmail bấm Xác nhận/Activate tài khoản Formspree trước nhé!"));
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    spinner.style.display = 'none';
+                }
+            } catch (err) {
+                console.error("Lỗi:", err);
+                alert("⚠️ Không thể kết nối tới máy chủ! Vui lòng thử lại.");
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                spinner.style.display = 'none';
+            }
+        }
+
+        function switchStep(fromId, toId) {
+            document.getElementById(fromId).classList.remove('active');
+            document.getElementById(toId).classList.add('active');
+        }
+
+        initTimePicker();
+        updateMomentPreview();
+        updateStepper(1);
+    </script>
+</body>
+</html>
